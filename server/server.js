@@ -6,7 +6,10 @@ import Shopify, { ApiVersion } from "@shopify/shopify-api";
 import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
-import getRawBody from "raw-body";
+import axios from "axios";
+
+const RedisStoreHandler = require("./services/redis");
+const sessionStorage = new RedisStoreHandler();
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -24,7 +27,12 @@ Shopify.Context.initialize({
   API_VERSION: ApiVersion.October20,
   IS_EMBEDDED_APP: true,
   // This should be replaced with your preferred storage strategy
-  SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
+  // SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
+  SESSION_STORAGE: new Shopify.Session.CustomSessionStorage(
+    sessionStorage.storeCallback,
+    sessionStorage.loadCallback,
+    sessionStorage.deleteCallback
+  ),
 });
 
 // Storing the currently active shops in memory will force them to re-login when your server restarts. You should
@@ -35,6 +43,7 @@ app.prepare().then(async () => {
   const server = new Koa();
   const router = new Router();
   server.keys = [Shopify.Context.API_SECRET_KEY];
+
   server.use(
     createShopifyAuth({
       async afterAuth(ctx) {
@@ -43,7 +52,7 @@ app.prepare().then(async () => {
         const host = ctx.query.host;
         ACTIVE_SHOPIFY_SHOPS[shop] = scope;
 
-        let response = await Shopify.Webhooks.Registry.register({
+        await Shopify.Webhooks.Registry.register({
           shop,
           accessToken,
           path: "/webhooks/app_uninstalled",
@@ -52,26 +61,22 @@ app.prepare().then(async () => {
             delete ACTIVE_SHOPIFY_SHOPS[shop],
         });
 
-        if (!response.success) {
-          console.log(
-            `Failed to register APP_UNINSTALLED webhook: ${response.result}`
-          );
-        }
-
-        response = await Shopify.Webhooks.Registry.register({
+        await Shopify.Webhooks.Registry.register({
           shop,
           accessToken,
           path: "/webhooks/orders_create",
           topic: "ORDERS_CREATE",
-          webhookHandler: async (topic, shop, body) =>
-            delete ACTIVE_SHOPIFY_SHOPS[shop],
-        });
+          webhookHandler: async (topic, shop, body) => {
+            console.log(body);
 
-        if (!response.success) {
-          console.log(
-            `Failed to register ORDERS_CREATE webhook: ${response.result}`
-          );
-        }
+            await axios({
+              method: "POST",
+              url:
+                "https://klr6zfetz9.execute-api.ap-southeast-1.amazonaws.com/",
+              data: JSON.stringify(body),
+            });
+          },
+        });
 
         // Redirect to app with shop parameter upon auth
         ctx.redirect(`/?shop=${shop}&host=${host}`);
@@ -99,7 +104,9 @@ app.prepare().then(async () => {
   router.post("/webhooks/app_uninstalled", async (ctx) => {
     try {
       await Shopify.Webhooks.Registry.process(ctx.req, ctx.res);
-      console.log(`Webhook processed, returned status code 200`);
+      console.log(
+        `Webhook processed app_uninstalled, returned status code 200`
+      );
     } catch (error) {
       console.log(`Failed to process webhook: ${error}`);
     }
@@ -108,8 +115,8 @@ app.prepare().then(async () => {
   router.post("/webhooks/orders_create", async (ctx) => {
     try {
       await Shopify.Webhooks.Registry.process(ctx.req, ctx.res);
-      console.log(`Webhook processed, returned status code 200`);
-      console.log(`${await getRawBody(ctx.req)}`)
+
+      console.log(`Webhook processed: orders_create, returned status code 200`);
     } catch (error) {
       console.log(`Failed to process webhook: ${error}`);
     }
@@ -130,6 +137,6 @@ app.prepare().then(async () => {
   server.use(router.allowedMethods());
   server.use(router.routes());
   server.listen(port, () => {
-    console.log(`> Ready on http://localhost:${port}`);
+    console.log(`> Ready on ${process.env.HOST}:${port}`);
   });
 });

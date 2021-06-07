@@ -19,3 +19,10 @@ config/tunnel.pid
 
 # next build output
 .next/
+
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless
