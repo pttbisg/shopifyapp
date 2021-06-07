@@ -5,15 +5,15 @@
 
 Boilerplate to create an embedded Shopify app made with Node, [Next.js](https://nextjs.org/), [Shopify-koa-auth](https://github.com/Shopify/quilt/tree/master/packages/koa-shopify-auth), [Polaris](https://github.com/Shopify/polaris-react), and [App Bridge React](https://shopify.dev/tools/app-bridge/react-components).
 
-## Installation
-
-Using the [Shopify-App-CLI](https://github.com/Shopify/shopify-app-cli) run:
+## Development
 
 ```sh
-~/ $ shopify create project APP_NAME
+shopify serve
 ```
 
-Or, fork and clone repo
+## Deployment
+
+TBD
 
 ## Requirements
 
