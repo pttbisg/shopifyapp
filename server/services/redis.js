@@ -10,20 +10,12 @@ promisifyAll(redis);
 
 class RedisStoreHandler {
   constructor() {
-    this.client = redis.createClient({
-      port: parseInt(process.env.REDIS_PORT) || 6379,
-      host: process.env.REDIS_HOST || "localhost",
-      auth_pass: process.env.REDIS_PASS,
-    });
+    this.client = redis.createClient(process.env.REDIS_URL);
   }
 
   async storeCallback(session) {
     try {
-      this.client = redis.createClient({
-        port: parseInt(process.env.REDIS_PORT) || 6379,
-        host: process.env.REDIS_HOST || "localhost",
-        auth_pass: process.env.REDIS_PASS,
-      });
+      this.client = redis.createClient(process.env.REDIS_URL);
 
       await this.client.setAsync(session.id, JSON.stringify(session));
 
@@ -35,11 +27,7 @@ class RedisStoreHandler {
   }
   async loadCallback(id) {
     try {
-      this.client = redis.createClient({
-        port: parseInt(process.env.REDIS_PORT) || 6379,
-        host: process.env.REDIS_HOST || "localhost",
-        auth_pass: process.env.REDIS_PASS,
-      });
+      this.client = redis.createClient(process.env.REDIS_URL);
 
       const result = await this.client.getAsync(id);
 
@@ -55,11 +43,7 @@ class RedisStoreHandler {
 
   async deleteCallback(id) {
     try {
-      this.client = redis.createClient({
-        port: parseInt(process.env.REDIS_PORT) || 6379,
-        host: process.env.REDIS_HOST || "localhost",
-        auth_pass: process.env.REDIS_PASS,
-      });
+      this.client = redis.createClient(process.env.REDIS_URL);
 
       await this.client.delAsync(id);
 
