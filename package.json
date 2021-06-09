@@ -6,7 +6,7 @@
     "test": "jest",
     "dev": "cross-env NODE_ENV=development nodemon ./server/index.js --watch ./server/index.js",
     "build": "NEXT_TELEMETRY_DISABLED=1 next build",
-    "start": "cross-env NODE_ENV=production node ./server/index.js"
+    "start": "NEXT_TELEMETRY_DISABLED=1 next build && cross-env NODE_ENV=production node ./server/index.js"
   },
   "repository": {
     "type": "git",
@@ -44,6 +44,8 @@
     "react-apollo": "^3.1.3",
     "react-dom": "^16.10.1",
     "redis": "^3.1.2",
+    "serverless-http": "^2.7.0",
+    "serverless-offline": "^7.0.0",
     "webpack": "^4.44.1"
   },
   "devDependencies": {

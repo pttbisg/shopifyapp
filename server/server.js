@@ -1,12 +1,15 @@
-import "@babel/polyfill";
-import dotenv from "dotenv";
-import "isomorphic-fetch";
-import createShopifyAuth, { verifyRequest } from "@shopify/koa-shopify-auth";
-import Shopify, { ApiVersion } from "@shopify/shopify-api";
-import Koa from "koa";
-import next from "next";
-import Router from "koa-router";
-import axios from "axios";
+"use strict";
+
+require("@babel/polyfill");
+const dotenv = require("dotenv");
+require("isomorphic-fetch");
+const { default: createShopifyAuth } = require("@shopify/koa-shopify-auth");
+const { verifyRequest } = require("@shopify/koa-shopify-auth");
+const { default: Shopify, ApiVersion } = require("@shopify/shopify-api");
+const Koa = require("koa");
+const next = require("next");
+const Router = require("koa-router");
+const axios = require("axios");
 
 const RedisStoreHandler = require("./services/redis");
 const sessionStorage = new RedisStoreHandler();
@@ -39,9 +42,10 @@ Shopify.Context.initialize({
 // persist this object in your app.
 const ACTIVE_SHOPIFY_SHOPS = {};
 
+const server = new Koa();
+const router = new Router();
+
 app.prepare().then(async () => {
-  const server = new Koa();
-  const router = new Router();
   server.keys = [Shopify.Context.API_SECRET_KEY];
 
   server.use(
@@ -130,13 +134,37 @@ app.prepare().then(async () => {
     }
   );
 
+  const healthcheckRequest = async (ctx) => {
+    try {
+      console.log(ctx.path);
+      if (
+        ctx.path === "/healthcheck/readiness" ||
+        ctx.path === "/healthcheck/liveness"
+      ) {
+        ctx.status = 200;
+        ctx.body = {
+          message: "OK",
+        };
+
+        return;
+      }
+    } catch (err) {
+      throw err;
+    }
+  };
+
   router.get("(/_next/static/.*)", handleRequest); // Static content is clear
   router.get("/_next/webpack-hmr", handleRequest); // Webpack content is clear
-  router.get("(.*)", verifyRequest(), handleRequest); // Everything else must have sessions
+  router.get("(.*)", healthcheckRequest, verifyRequest(), handleRequest); // Everything else must have sessions
 
   server.use(router.allowedMethods());
   server.use(router.routes());
+
   server.listen(port, () => {
     console.log(`> Ready on ${process.env.HOST}:${port}`);
   });
 });
+
+module.exports = {
+  app: server,
+};

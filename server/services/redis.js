@@ -1,6 +1,6 @@
 "use strict";
 
-import { promisifyAll } from "bluebird";
+const { promisifyAll } = require("bluebird");
 const redis = require("redis");
 const dotenv = require("dotenv");
 

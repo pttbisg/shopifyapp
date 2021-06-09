@@ -1,0 +1,35 @@
+service: pttb-shopify-app
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  region: ap-southeast-1
+  environment:
+    STAGE: ${opt:stage, 'dev'}
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
+
+functions:
+  hello:
+    handler: handler.server
+    events:
+      - http: ANY /
+      - http: ANY /{proxy+}
+    # vpc:
+    #   securityGroupIds:
+    #     - sg-878af1ca
+    #   subnetIds:
+    #     - subnet-554ee81d
+    #     - subnet-5595f80c
+    #     - subnet-490bbd2f
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    noPrependStageInUrl: true

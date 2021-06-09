@@ -1,0 +1,19 @@
+branch-defaults:
+  master:
+    environment: pttb-shopify-live
+environment-defaults:
+  pttb-shopify-live:
+    branch: null
+    repository: null
+global:
+  application_name: pttb-shopify
+  default_ec2_keyname: aws-eb
+  default_platform: Node.js 12 running on 64bit Amazon Linux 2
+  default_region: ap-southeast-1
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: pttb-surya
+  sc: git
+  workspace_type: Application

@@ -21,7 +21,6 @@ config/tunnel.pid
 .next/
 
 # package directories
-node_modules
 jspm_packages
 
 # Serverless directories

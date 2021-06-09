@@ -5,6 +5,11 @@
 
 Boilerplate to create an embedded Shopify app made with Node, [Next.js](https://nextjs.org/), [Shopify-koa-auth](https://github.com/Shopify/quilt/tree/master/packages/koa-shopify-auth), [Polaris](https://github.com/Shopify/polaris-react), and [App Bridge React](https://shopify.dev/tools/app-bridge/react-components).
 
+## Prerequisite
+
+- Install [shopify-cli](https://shopify.dev/tools/cli)
+- Install [eb-cli](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html)
+
 ## Development
 
 ```sh
@@ -13,7 +18,13 @@ shopify serve
 
 ## Deployment
 
-TBD
+- Make sure you have set your AWS profile configuration in local machine
+- Deploy `eb deploy --profile <profile-name>`
+
+```sh
+
+sls deploy --aws-profile <AWS profile in local machine> --stage <stage>
+```
 
 ## Requirements
 
