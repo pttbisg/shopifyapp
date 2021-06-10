@@ -160,7 +160,7 @@ app.prepare().then(async () => {
   server.use(router.allowedMethods());
   server.use(router.routes());
 
-  server.listen(port, () => {
+  server.listen(port, process.env.HEROKU_HOST || "0.0.0.0", () => {
     console.log(`> Ready on ${process.env.HOST}:${port}`);
   });
 });
