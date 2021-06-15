@@ -11,8 +11,8 @@ const next = require("next");
 const Router = require("koa-router");
 const axios = require("axios");
 
-const RedisStoreHandler = require("./services/redis");
-const sessionStorage = new RedisStoreHandler();
+const BackendlessHandler = require("./services/backendless");
+const sessionStorage = new BackendlessHandler();
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -59,25 +59,37 @@ app.prepare().then(async () => {
         await Shopify.Webhooks.Registry.register({
           shop,
           accessToken,
-          path: "/webhooks/app_uninstalled",
-          topic: "APP_UNINSTALLED",
-          webhookHandler: async (topic, shop, body) =>
-            delete ACTIVE_SHOPIFY_SHOPS[shop],
+          path: "/webhooks/orders_create",
+          topic: "ORDERS_CREATE",
+          webhookHandler: async (topic, shop, body) => {
+            body = JSON.parse(body);
+
+            body.topic = topic;
+            body.shop_name = shop;
+
+            await axios({
+              method: "POST",
+              url: "https://enks8cu8lmzlolz.m.pipedream.net",
+              data: body,
+            });
+          },
         });
 
         await Shopify.Webhooks.Registry.register({
           shop,
           accessToken,
-          path: "/webhooks/orders_create",
-          topic: "ORDERS_CREATE",
+          path: "/webhooks/orders_updated",
+          topic: "ORDERS_UPDATED",
           webhookHandler: async (topic, shop, body) => {
-            console.log(body);
+            body = JSON.parse(body);
+
+            body.topic = topic;
+            body.shop_name = shop;
 
             await axios({
               method: "POST",
-              url:
-                "https://klr6zfetz9.execute-api.ap-southeast-1.amazonaws.com/",
-              data: JSON.stringify(body),
+              url: "https://enks8cu8lmzlolz.m.pipedream.net",
+              data: body,
             });
           },
         });
@@ -121,6 +133,18 @@ app.prepare().then(async () => {
       await Shopify.Webhooks.Registry.process(ctx.req, ctx.res);
 
       console.log(`Webhook processed: orders_create, returned status code 200`);
+    } catch (error) {
+      console.log(`Failed to process webhook: ${error}`);
+    }
+  });
+
+  router.post("/webhooks/orders_updated", async (ctx) => {
+    try {
+      await Shopify.Webhooks.Registry.process(ctx.req, ctx.res);
+
+      console.log(
+        `Webhook processed: orders_updated, returned status code 200`
+      );
     } catch (error) {
       console.log(`Failed to process webhook: ${error}`);
     }
