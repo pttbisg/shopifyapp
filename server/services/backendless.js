@@ -22,7 +22,7 @@ class BackendlessHandler {
         },
         data: {
           id: session.id,
-          session: session,
+          session: JSON.stringify(session),
         },
       };
 
@@ -47,9 +47,7 @@ class BackendlessHandler {
 
       const result = await axios(payload);
 
-      console.log(result.data);
-
-      return result.data[0].session;
+      return JSON.parse(result.data[0].session);
     } catch (err) {
       throw new Error(err);
     }
