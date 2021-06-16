@@ -18,13 +18,7 @@ shopify serve
 
 ## Deployment
 
-- Make sure you have set your AWS profile configuration in local machine
-- Deploy `eb deploy --profile <profile-name>`
-
-```sh
-
-sls deploy --aws-profile <AWS profile in local machine> --stage <stage>
-```
+- Deploy in Digital Ocean
 
 ## Requirements
 
