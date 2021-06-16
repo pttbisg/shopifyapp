@@ -69,7 +69,8 @@ app.prepare().then(async () => {
 
             await axios({
               method: "POST",
-              url: "https://enks8cu8lmzlolz.m.pipedream.net",
+              url:
+                "https://tfwtihumzc.execute-api.ap-southeast-1.amazonaws.com/live/webhooks/orders-create",
               data: body,
             });
           },
@@ -88,7 +89,8 @@ app.prepare().then(async () => {
 
             await axios({
               method: "POST",
-              url: "https://enks8cu8lmzlolz.m.pipedream.net",
+              url:
+                "https://tfwtihumzc.execute-api.ap-southeast-1.amazonaws.com/live/webhooks/orders-updated",
               data: body,
             });
           },
