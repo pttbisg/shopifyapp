@@ -27,7 +27,7 @@ Shopify.Context.initialize({
   API_SECRET_KEY: process.env.SHOPIFY_API_SECRET,
   SCOPES: process.env.SCOPES.split(","),
   HOST_NAME: process.env.HOST.replace(/https:\/\//, ""),
-  API_VERSION: ApiVersion.October20,
+  API_VERSION: ApiVersion.April21,
   IS_EMBEDDED_APP: true,
   // This should be replaced with your preferred storage strategy
   SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
@@ -50,13 +50,15 @@ app.prepare().then(async () => {
 
   server.use(
     createShopifyAuth({
+      accessMode: "offline",
+
       async afterAuth(ctx) {
         // Access token and shop available in ctx.state.shopify
         const { shop, accessToken, scope } = ctx.state.shopify;
         const host = ctx.query.host;
         ACTIVE_SHOPIFY_SHOPS[shop] = scope;
 
-        await Shopify.Webhooks.Registry.register({
+        let res = await Shopify.Webhooks.Registry.register({
           shop,
           accessToken,
           path: "/webhooks/orders_create",
@@ -67,16 +69,24 @@ app.prepare().then(async () => {
             body.topic = topic;
             body.shop_name = shop;
 
-            await axios({
+            const res = await axios({
               method: "POST",
               url:
                 "https://tfwtihumzc.execute-api.ap-southeast-1.amazonaws.com/live/webhooks/orders-create",
               data: body,
             });
+
+            console.log(res.data);
           },
         });
 
-        await Shopify.Webhooks.Registry.register({
+        if (!res.success) {
+          console.log(
+            `Failed to register ORDERS_CREATE webhook: ${res.result}`
+          );
+        }
+
+        res = await Shopify.Webhooks.Registry.register({
           shop,
           accessToken,
           path: "/webhooks/orders_updated",
@@ -87,14 +97,22 @@ app.prepare().then(async () => {
             body.topic = topic;
             body.shop_name = shop;
 
-            await axios({
+            const res = await axios({
               method: "POST",
               url:
                 "https://tfwtihumzc.execute-api.ap-southeast-1.amazonaws.com/live/webhooks/orders-updated",
               data: body,
             });
+
+            console.log(res.data);
           },
         });
+
+        if (!res.success) {
+          console.log(
+            `Failed to register ORDERS_UPDATED webhook: ${res.result}`
+          );
+        }
 
         // Redirect to app with shop parameter upon auth
         ctx.redirect(`/?shop=${shop}&host=${host}`);
@@ -116,17 +134,6 @@ app.prepare().then(async () => {
       ctx.redirect(`/auth?shop=${shop}`);
     } else {
       await handleRequest(ctx);
-    }
-  });
-
-  router.post("/webhooks/app_uninstalled", async (ctx) => {
-    try {
-      await Shopify.Webhooks.Registry.process(ctx.req, ctx.res);
-      console.log(
-        `Webhook processed app_uninstalled, returned status code 200`
-      );
-    } catch (error) {
-      console.log(`Failed to process webhook: ${error}`);
     }
   });
 
