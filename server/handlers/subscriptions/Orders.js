@@ -48,7 +48,7 @@ class Orders {
       shop: this.shop,
       accessToken: this.accessToken,
       topic: "ORDERS_CREATE",
-      path: "/orders/create",
+      path: "/webhooks/orders/create",
       webhookHandler: async function (topic, shop, body) {
         body = JSON.parse(body);
         body.topic = topic;
