@@ -7,6 +7,7 @@ import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
 import Order from "./handlers/subscriptions/Orders";
+import orderRouter from "./routes/orders.router";
 
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -74,6 +75,20 @@ app.prepare().then(async () => {
     ctx.respond = false;
     ctx.res.statusCode = 200;
   };
+
+  router.post('/orders/create', async (ctx) => {
+    await Shopify.Webhooks.Registry.process(ctx.req, ctx.res);
+    ctx.respond = false;
+    ctx.res.statusCode = 200;
+  });
+
+  router.post('/orders/update', async (ctx) => {
+    await Shopify.Webhooks.Registry.process(ctx.req, ctx.res);
+    ctx.respond = false;
+    ctx.res.statusCode = 200;
+  });
+
+  //router.use('/orders', orderRouter);
 
   router.post("/webhooks", async (ctx) => {
     try {
