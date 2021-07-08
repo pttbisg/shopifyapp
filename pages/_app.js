@@ -56,7 +56,7 @@ class MyApp extends App {
       <AppProvider i18n={translations}>
         <Provider
           config={{
-            apiKey: apiKey,
+            apiKey: process.env.API_KEY,
             shopOrigin,
             host: host,
             forceRedirect: true,

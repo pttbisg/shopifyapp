@@ -5,6 +5,10 @@ const apiKey = JSON.stringify(process.env.SHOPIFY_API_KEY);
 const host = JSON.stringify(process.env.HOST);
 
 module.exports = {
+  env : {
+    API_KEY: apiKey,
+    HOST_URL: host
+  },
   webpack: (config) => {
     const env = { API_KEY: apiKey, HOST_URL: host };
     config.plugins.push(new webpack.DefinePlugin(env));
