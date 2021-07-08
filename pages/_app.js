@@ -56,7 +56,7 @@ class MyApp extends App {
       <AppProvider i18n={translations}>
         <Provider
           config={{
-            apiKey: API_KEY,
+            apiKey: process.env.NEXT_PUBLIC_SHOPIFY_API_KEY || "e86cfd538fdbdea0d56c09cfa08fdcf9",
             shopOrigin,
             host: host,
             forceRedirect: true,
