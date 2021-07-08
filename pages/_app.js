@@ -51,12 +51,12 @@ function MyProvider(props) {
 
 class MyApp extends App {
   render() {
-    const { Component, pageProps, shopOrigin, host } = this.props;
+    const { Component, pageProps, shopOrigin, host, apiKey} = this.props;
     return (
       <AppProvider i18n={translations}>
         <Provider
           config={{
-            apiKey: API_KEY,
+            apiKey: apiKey,
             shopOrigin,
             host: host,
             forceRedirect: true,
