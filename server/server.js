@@ -6,6 +6,7 @@ import Shopify, { ApiVersion } from "@shopify/shopify-api";
 import Koa from "koa";
 import next from "next";
 import Router from "koa-router";
+import session from "koa-session";
 import Order from "./handlers/subscriptions/Orders";
 import orderRouter from "./routes/orders.router";
 
@@ -36,11 +37,14 @@ app.prepare().then(async () => {
   const server = new Koa();
   const router = new Router();
   server.keys = [Shopify.Context.API_SECRET_KEY];
+  server.proxy = true;
+  server.use(session({ sameSite: 'none', secure: true }, server));
   server.use(
     createShopifyAuth({
       async afterAuth(ctx) {
         // Access token and shop available in ctx.state.shopify
         const { shop, accessToken, scope } = ctx.state.shopify;
+        ctx.cookies.set("shopOrigin", shop, { httpOnly: false, sameSite: 'none', secure: true });
         const host = ctx.query.host;
         ACTIVE_SHOPIFY_SHOPS[shop] = scope;
 
