@@ -41,6 +41,7 @@ app.prepare().then(async () => {
   server.use(session({ sameSite: 'none', secure: true }, server));
   server.use(
     createShopifyAuth({
+      accessMode: "offline",
       async afterAuth(ctx) {
         // Access token and shop available in ctx.state.shopify
         const { shop, accessToken, scope } = ctx.state.shopify;
