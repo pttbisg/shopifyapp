@@ -21,6 +21,7 @@ module.exports.registerWebhook = async function registerWebhook({
   const result = await response.data;
 
   console.log(result.data);
+  console.log(result.data.eventBridgeWebhookSubscriptionCreate.userErrors);
 
   if (
     result.data &&

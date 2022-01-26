@@ -58,14 +58,13 @@ app.prepare().then(async () => {
         const { shop, accessToken, scope } = ctx.state.shopify;
         const host = ctx.query.host;
 
-        console.log(accessToken);
         ACTIVE_SHOPIFY_SHOPS[shop] = scope;
 
         let res = await shopifyHook.registerWebhook({
           accessToken,
           address:
-            "arn:aws:events:ap-southeast-1::event-source/aws.partner/shopify.com/5369525/shopify-pttb",
-          apiVersion: ApiVersion.July21,
+            "arn:aws:events:ap-southeast-1::event-source/aws.partner/shopify.com/6402507/shopify-live",
+          apiVersion: "2022-01",
           shop,
           topic: "ORDERS_CREATE",
         });
