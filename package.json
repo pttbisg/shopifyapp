@@ -26,6 +26,7 @@
     "@shopify/app-bridge-utils": "^2.0.2",
     "@shopify/koa-shopify-auth": "^4.1.2",
     "@shopify/polaris": "^6.2.0",
+    "@supabase/supabase-js": "^1.29.4",
     "apollo-boost": "^0.4.9",
     "axios": "^0.21.1",
     "bluebird": "^3.7.2",
