@@ -10,6 +10,8 @@ const Koa = require("koa");
 const next = require("next");
 const Router = require("koa-router");
 const axios = require("axios");
+const Supabase = require("./services/Supabase");
+const shopifyHook = require("./services/customWebhook");
 
 const BackendlessHandler = require("./services/backendless");
 const sessionStorage = new BackendlessHandler();
@@ -27,7 +29,7 @@ Shopify.Context.initialize({
   API_SECRET_KEY: process.env.SHOPIFY_API_SECRET,
   SCOPES: process.env.SCOPES.split(","),
   HOST_NAME: process.env.HOST.replace(/https:\/\//, ""),
-  API_VERSION: ApiVersion.April21,
+  API_VERSION: ApiVersion.July21,
   IS_EMBEDDED_APP: true,
   // This should be replaced with your preferred storage strategy
   SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
@@ -56,28 +58,17 @@ app.prepare().then(async () => {
         // Access token and shop available in ctx.state.shopify
         const { shop, accessToken, scope } = ctx.state.shopify;
         const host = ctx.query.host;
+
+        console.log(accessToken);
         ACTIVE_SHOPIFY_SHOPS[shop] = scope;
 
-        let res = await Shopify.Webhooks.Registry.register({
-          shop,
+        let res = await shopifyHook.registerWebhook({
           accessToken,
-          path: "/webhooks/orders_create",
+          address:
+            "arn:aws:events:ap-southeast-1::event-source/aws.partner/shopify.com/5369525/shopify-pttb",
+          apiVersion: ApiVersion.July21,
+          shop,
           topic: "ORDERS_CREATE",
-          webhookHandler: async (topic, shop, body) => {
-            body = JSON.parse(body);
-
-            body.topic = topic;
-            body.shop_name = shop;
-
-            const res = await axios({
-              method: "POST",
-              url:
-                "https://tfwtihumzc.execute-api.ap-southeast-1.amazonaws.com/live/webhooks/orders-create",
-              data: body,
-            });
-
-            console.log(res.data);
-          },
         });
 
         if (!res.success) {
