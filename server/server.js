@@ -10,7 +10,6 @@ const Koa = require("koa");
 const next = require("next");
 const Router = require("koa-router");
 const axios = require("axios");
-const Supabase = require("./services/Supabase");
 const shopifyHook = require("./services/customWebhook");
 
 const BackendlessHandler = require("./services/backendless");
