@@ -75,26 +75,13 @@ app.prepare().then(async () => {
           );
         }
 
-        res = await Shopify.Webhooks.Registry.register({
-          shop,
+        res = await shopifyHook.registerWebhook({
           accessToken,
-          path: "/webhooks/orders_updated",
+          address:
+            "arn:aws:events:ap-southeast-1::event-source/aws.partner/shopify.com/6402507/shopify-live",
+          apiVersion: "2022-01",
+          shop,
           topic: "ORDERS_UPDATED",
-          webhookHandler: async (topic, shop, body) => {
-            body = JSON.parse(body);
-
-            body.topic = topic;
-            body.shop_name = shop;
-
-            const res = await axios({
-              method: "POST",
-              url:
-                "https://tfwtihumzc.execute-api.ap-southeast-1.amazonaws.com/live/webhooks/orders-updated",
-              data: body,
-            });
-
-            console.log(res.data);
-          },
         });
 
         if (!res.success) {
