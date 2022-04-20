@@ -1,8 +1,14 @@
-import { Heading, Page } from "@shopify/polaris";
+import { Page, Card, Stack, TextContainer } from "@shopify/polaris";
 
 const Index = () => (
   <Page>
-    <Heading>Thank you for installing Power To The Brand Shopify ap 🎉</Heading>
+    <Card sectioned>
+      <TextContainer>
+        This app installs webhooks for order create, order edit and order delete
+        events. It allows our local teams in country to process your orders with
+        our warehouses
+      </TextContainer>
+    </Card>
   </Page>
 );
 
