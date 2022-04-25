@@ -11,6 +11,7 @@ const next = require("next");
 const Router = require("koa-router");
 const axios = require("axios");
 const shopifyHook = require("./services/customWebhook");
+const helmet = require("koa-helmet");
 
 const BackendlessHandler = require("./services/backendless");
 const sessionStorage = new BackendlessHandler();
@@ -48,6 +49,34 @@ const router = new Router();
 
 app.prepare().then(async () => {
   server.keys = [Shopify.Context.API_SECRET_KEY];
+
+  const setContentSecurityHeader = (ctx, next) => {
+    // Cookie is set after auth
+    if (ctx.cookies.get("shopOrigin")) {
+      return helmet.contentSecurityPolicy({
+        directives: {
+          defaultSrc: helmet.contentSecurityPolicy.dangerouslyDisableDefaultSrc,
+          frameAncestors: [
+            `https://${ctx.cookies.get("shopOrigin")}`,
+            "https://admin.shopify.com",
+          ],
+        },
+      })(ctx, next);
+    } else {
+      // Before auth => no cookie set...
+      return helmet.contentSecurityPolicy({
+        directives: {
+          defaultSrc: helmet.contentSecurityPolicy.dangerouslyDisableDefaultSrc,
+          frameAncestors: [
+            `https://${ctx.query.shop}`,
+            "https://admin.shopify.com",
+          ],
+        },
+      })(ctx, next);
+    }
+  };
+
+  server.use(setContentSecurityHeader);
 
   server.use(
     createShopifyAuth({
